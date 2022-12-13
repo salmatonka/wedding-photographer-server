@@ -35,48 +35,45 @@ function verifyJWT(req, res, next) {
 }
 
 
-
-
-
-
  async function run(){
      try{
          const photoCollection = client.db('photoService').collection('services');
          
           const reviewCollection = client.db('photoService').collection('reviews');
 
-          const userCollection = client.db('photoService').collection('users');
+        //   const userCollection = client.db('photoService').collection('users');
          
-         app.post('/jwt',(req,res)=>{
+         
+        app.post('/jwt',(req,res)=>{
             const user = req.body;
             console.log(user)
             const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '7d'})
             res.send({token })
            
-         })
+        })
            
         
-         app.get('/',async(req,res)=>{
+        app.get('/',async(req,res)=>{
             const query = {}
             const cursor = photoCollection.find(query)
             const services = await cursor.limit(3).toArray()
             res.send(services)
-         })
+        })
 
-         app.get('/services',async(req,res)=>{
+        app.get('/services',async(req,res)=>{
             const query = {}
             const cursor = photoCollection.find(query)
             const services = await cursor.toArray()
             res.send(services)
-         })
+        })
         
 
-         app.get('/services/:id',async(req,res)=>{
+        app.get('/services/:id',async(req,res)=>{
             const id=req.params.id;
             const query ={_id: ObjectId(id)};
             const service = await photoCollection.findOne(query);
             res.send(service)
-         })
+        })
 
        //order api
 
@@ -97,17 +94,17 @@ function verifyJWT(req, res, next) {
         const reviews =await cursor.toArray();
         res.send(reviews)
   
-      })
+    })
   
       
-      app.post('/reviews', verifyJWT, async(req,res)=>{
+    app.post('/reviews', verifyJWT, async(req,res)=>{
         const review = req.body;
         const result = await reviewCollection.insertOne(review);
         res.send(result);
-     })
+    })
      
         
-     app.patch('/reviews/:id',verifyJWT,async(req,res) =>{
+    app.patch('/reviews/:id',verifyJWT,async(req,res) =>{
         const id = req.params.id;
         const status = req.body.status;
         const query = {_id: ObjectId(id)}
@@ -119,31 +116,32 @@ function verifyJWT(req, res, next) {
 
         const result = await reviewCollection.updateOne(query,updatedDoc);
         res.send(result);
-     })
+    })
 
 
-     app.delete('/reviews/:id', verifyJWT,async(req,res) =>{
+    app.delete('/reviews/:id', verifyJWT,async(req,res) =>{
        const id = req.params.id;
        const query = {_id: ObjectId(id)};
        const result = await reviewCollection.deleteOne(query);
        res.send(result)
 
-     })
+    })
 
      //services review
-     app.get('/users',async(req,res) =>{
+    app.get('/services',async(req,res) =>{
       const query = {};
-      const users = await userCollection.findOne(query).toArray;
+      const users = await photoCollection.find(query).toArray();
       res.send(users);
-  })
+    })
 
 
-      app.post('/users',async(req,res) =>{
-          const user = req.body;
-          console.log(user);
-          const result = await userCollection.insertOne(user);
+    app.post('/services',async(req,res) =>{
+          const query = req.body;
+          console.log(query);
+          const result = await photoCollection.insertOne(query);
           res.send(result);
-      })
+    })
+
 
     }
     finally{
